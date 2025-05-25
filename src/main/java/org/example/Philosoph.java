@@ -21,7 +21,8 @@ public class Philosoph extends JPanel {
     private Image philosophWait;
     private Image philosophEat;
 
-    public Philosoph(Fork left, Fork right, int philosophNumber, int x, int y, int width, int height) {
+    public Philosoph(Fork left, Fork right, int philosophNumber, int x, int y, int width, int height,Table table) {
+        this.table = table ;
         this.forkRight = right;
         this.forkLeft = left;
         this.philosophNumber = philosophNumber;
@@ -33,7 +34,7 @@ public class Philosoph extends JPanel {
         setLayout(null);
         setFocusable(true);
         setBounds(x, y, width, height);
-        setOpaque(false);
+        //setOpaque(false);
         createStatePanel();
         //startLogic();
         cheakLogic();
@@ -86,9 +87,10 @@ public class Philosoph extends JPanel {
             }
         };
 
-        statePanel.setBounds(0, 0, 100, 30);
-        statePanel.setOpaque(false);
+        statePanel.setBounds(0, 0, 20, 30);
+        statePanel.setOpaque(true);
         this.add(statePanel);
+        getBounds();
     }
 
     public void setState(int newState) {
@@ -169,7 +171,7 @@ public class Philosoph extends JPanel {
                 Random rand = new Random();
                 while (true) {
                     setState(THINKING);
-                    Thread.sleep(rand.nextInt(1100));
+                    Thread.sleep(rand.nextInt(1000));
 
                     boolean ate = false;
                     while (!ate) {
@@ -177,16 +179,17 @@ public class Philosoph extends JPanel {
                                 setState(WAIT_FOR_LEFT);
                                 Thread.sleep(100);
                                 continue;
+
                             }
                             forkLeft.setLeftForkNextPhilosoph(this);
                             forkLeft.setUnavailable();
-                            Thread.sleep(rand.nextInt(1000));
+                            Thread.sleep(rand.nextInt(100));
 
 
                                 if (!forkRight.isAvailable()) {
                                     setState(WAIT_FOR_RIGHT);
                                     forkLeft.setAvailable();
-                                    Thread.sleep(100);
+                                    Thread.sleep(1000);
                                     continue;
                                 }
                                 setState(EAT);
@@ -195,7 +198,7 @@ public class Philosoph extends JPanel {
 
 
                                 eatCount++;
-                                Thread.sleep(rand.nextInt(1100));
+                                Thread.sleep(rand.nextInt(1000));
 
                                 // שחרור
                                 forkLeft.setAvailable();

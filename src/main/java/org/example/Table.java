@@ -58,7 +58,7 @@ public class Table extends JPanel {
             Fork leftFork = forks.get(leftIndex);
             Fork rightFork = forks.get(rightIndex);
 
-            Philosoph p = new Philosoph(leftFork, rightFork, i, philX, philY, philosopherSize, philosopherSize);
+            Philosoph p = new Philosoph(leftFork, rightFork, i, philX, philY, philosopherSize, philosopherSize , this);
             philosophs.add(p);
             this.add(p);
         }
