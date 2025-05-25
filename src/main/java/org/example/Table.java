@@ -35,30 +35,40 @@ public class Table extends JPanel {
         int forkHeight = 30;
         int forkRadius = radius - 40;
 
-        for (int i = 0; i < numberOfPhilosophers; i++) {
-            // פילוסוף
-            double angle = Math.toRadians(i * angleStep - 90);
-            int philX = (int) (centerX + radius * Math.cos(angle)) - philosopherSize / 2;
-            int philY = (int) (centerY + radius * Math.sin(angle)) - philosopherSize / 2;
-
-            Philosoph p = new Philosoph(i + 1, philX, philY, philosopherSize, philosopherSize);
-            this.philosophs.add(p);
-            this.add(p);
-        }
-
-        // הוספת מזלגות בין הפילוסופים
+        // יצירת המזלגות
         for (int i = 0; i < numberOfPhilosophers; i++) {
             double forkAngle = Math.toRadians((i * angleStep + angleStep / 2.0) - 90);
             int forkX = (int) (centerX + forkRadius * Math.cos(forkAngle)) - forkWidth / 2;
             int forkY = (int) (centerY + forkRadius * Math.sin(forkAngle)) - forkHeight / 2;
 
-            Fork f = new Fork(i + 1, forkX, forkY);
+            Fork f = new Fork(i, forkX, forkY);
             forks.add(f);
             this.add(f);
         }
 
-        // מתחיל אנימציה של שינוי מצב הפילוסופים
-        startAction();
+        // יצירת הפילוסופים
+        for (int i = 0; i < numberOfPhilosophers; i++) {
+            double angle = Math.toRadians(i * angleStep - 90);
+            int philX = (int) (centerX + radius * Math.cos(angle)) - philosopherSize / 2;
+            int philY = (int) (centerY + radius * Math.sin(angle)) - philosopherSize / 2;
+
+            int leftIndex = (i + numberOfPhilosophers - 1) % numberOfPhilosophers;
+            int rightIndex = i;
+
+            Fork leftFork = forks.get(leftIndex);
+            Fork rightFork = forks.get(rightIndex);
+
+            Philosoph p = new Philosoph(leftFork, rightFork, i, philX, philY, philosopherSize, philosopherSize);
+            philosophs.add(p);
+            this.add(p);
+        }
+        //remove(forks.get(0));
+        //philosophs.get(5).getForkLeft().getNumber();
+        //philosophs.get(5).getForkRight().getNumber();
+       // System.out.println(philosophs.get(0).getForkLeft().getNumber());
+        //System.out.println(philosophs.get(0).getForkRight().getNumber());
+
+
     }
 
     public List<Philosoph> getPhilosophs() {
@@ -68,36 +78,5 @@ public class Table extends JPanel {
     public List<Fork> getForks() {
         return this.forks;
     }
-
-    public void startAction() {
-        new Thread(() -> {
-            try {
-                while (true) {
-                    Random random = new Random();
-                    int philosoph = random.nextInt(philosophs.size());
-
-                    int state = random.nextInt(1,3);
-                    philosophs.get(philosoph).setState(state);
-                    sleep(1000);
-                }
-            } catch (Exception e) {
-                throw new RuntimeException(e);
-            }
-        }).start();
-    }
-    public void availableCheak(int philosoph){
-        if (philosoph == 0){
-            Fork left = forks.get(philosoph+5);
-            Fork right = forks.get(philosoph);
-
-        }
-        else {
-            Philosoph current = philosophs.get(philosoph);
-            Fork left = forks.get(philosoph);
-            Fork right = forks.get(philosoph + 1);
-        }
-
-    }
-
 
 }
