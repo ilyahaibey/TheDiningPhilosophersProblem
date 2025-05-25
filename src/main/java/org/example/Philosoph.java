@@ -20,9 +20,11 @@ public class Philosoph extends JPanel {
 
     private Image philosophWait;
     private Image philosophEat;
+    private Table table;
 
-    public Philosoph(Fork left, Fork right, int philosophNumber, int x, int y, int width, int height,Table table) {
-        this.table = table ;
+
+    public Philosoph(Fork left, Fork right, int philosophNumber, int x, int y, int width, int height, Table table) {
+        this.table = table;
         this.forkRight = right;
         this.forkLeft = left;
         this.philosophNumber = philosophNumber;
@@ -33,8 +35,8 @@ public class Philosoph extends JPanel {
 
         setLayout(null);
         setFocusable(true);
-        setBounds(x, y, width, height);
-        //setOpaque(false);
+        setBounds(x, y-20, width, height+40 );
+        setOpaque(false);
         createStatePanel();
         //startLogic();
         cheakLogic();
@@ -53,7 +55,7 @@ public class Philosoph extends JPanel {
             current = philosophWait;
         }
 
-        g.drawImage(current, 0, 0, getWidth(), getHeight(), this);
+        g.drawImage(current, 0, 20, getWidth(), 100, this);
     }
 
     private void createStatePanel() {
@@ -80,15 +82,14 @@ public class Philosoph extends JPanel {
                     default:
                         status = "";
                 }
-                ;
 
-                g.drawString(status, 0, 10);
+                g.drawString(status, 5, 11);
                 g.drawString("Ate " + eatCount + " times", 0, 22);
             }
         };
 
-        statePanel.setBounds(0, 0, 20, 30);
-        statePanel.setOpaque(true);
+        statePanel.setBounds(0, 0, 120, 40);
+        statePanel.setOpaque(false);
         this.add(statePanel);
         getBounds();
     }
@@ -171,7 +172,7 @@ public class Philosoph extends JPanel {
                 Random rand = new Random();
                 while (true) {
                     setState(THINKING);
-                    Thread.sleep(rand.nextInt(1000));
+                    Thread.sleep(rand.nextInt(5000));
 
                     boolean ate = false;
                     while (!ate) {
@@ -218,5 +219,7 @@ public class Philosoph extends JPanel {
     }
 
 }
+
+
 
 

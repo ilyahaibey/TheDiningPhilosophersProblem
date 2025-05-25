@@ -20,5 +20,4 @@ public class Mainscene extends JPanel {
         this.add(table);
 
     }
-
 }

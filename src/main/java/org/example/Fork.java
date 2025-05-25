@@ -11,9 +11,11 @@ public class Fork extends JPanel {
     private boolean available;
     private Image fork1;
     private Image fork0;
+    private Table table ;
 
 
-    public Fork(int number, int x, int y) {
+    public Fork(int number, int x, int y , Table table) {
+        this.table = table ;
         this.available = true;
         this.x = x;
         this.y = y;
@@ -53,7 +55,7 @@ public class Fork extends JPanel {
     public void setLeftForkNextPhilosoph(Philosoph philosoph){
 
          int philosophX = philosoph.getX();
-        int philosophY = philosoph.getY();
+        int philosophY = philosoph.getY()+30;
         setBounds(philosophX , philosophY , getWidth() ,getHeight());
         repaint();
 
@@ -61,18 +63,27 @@ public class Fork extends JPanel {
     public void setRhightForkNextPhilosoph(Philosoph philosoph){
 
         int philosophX = philosoph.getX()+50;
-        int philosophY = philosoph.getY();
+        int philosophY = philosoph.getY()+30;
         setBounds(philosophX , philosophY , getWidth() ,getHeight());
         repaint();
 
     }
     public void setForkToNormal(){
-
         setBounds(x ,y ,getWidth() , getHeight());
         repaint();
     }
     public int getNumber(){
        return this.number;
+    }
+
+    public void stop(){
+        this.available = false ;
+        setVisible(false);
+        table.remove(this);
+
+    }
+    public void setNumber(int newIndex){
+        this.number = newIndex ;
     }
 
 }

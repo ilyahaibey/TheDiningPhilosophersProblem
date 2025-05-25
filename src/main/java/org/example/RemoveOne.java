@@ -3,7 +3,9 @@ package org.example;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionListener;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 public class RemoveOne extends JButton {
     public static final int X = 100;
@@ -13,15 +15,19 @@ public class RemoveOne extends JButton {
 
     private int x;
     private int y;
-    private int width ;
+    private int width;
     private int height;
-    private JPanel perent ;
+    private JPanel perent;
+    private Table table;
+    private List<Fork> forks;
+    private List<Philosoph> philosophs;
 
 
+    public RemoveOne(Table table) {
+        this.table = table;
+        this.forks = table.getForks();
+        this.philosophs = table.getPhilosophs();
 
-
-    public RemoveOne(JPanel perent,List<Philosoph> philosophers) {
-        this.perent = perent;
         this.x = X;
         this.y = Y;
         this.width = WIDTH;
@@ -29,6 +35,7 @@ public class RemoveOne extends JButton {
         setBackground(Color.cyan);
         setLayout(null);
         setBounds(X, Y, WIDTH, HEIGHT);
+        this.setText("remove");
 
 
         this.setContentAreaFilled(true);
@@ -37,23 +44,56 @@ public class RemoveOne extends JButton {
         this.setVisible(true);
         //removeButton.addActionListener(onStartClicked);
         //removeButton.add(this);
-        perent.add(this);
 
-
+//
 //        this.addActionListener(e -> {
-//            List<Philosoph> runningPhilosophers = new java.util.ArrayList<>();
-//            for (Philosoph p : philosophers) {
+//            List<Philosoph> runningPhilosophers = new ArrayList<>();
+//
+//            for (int i = 0; i < this.philosophs.size(); i++) {
+//                Philosoph p = philosophs.get(i);
 //                if (p.isRunning()) {
 //                    runningPhilosophers.add(p);
 //                }
 //            }
-//            if(true);
-//        repaint();
+//
+//            if (!runningPhilosophers.isEmpty()) {
+//                int index = new Random().nextInt(runningPhilosophers.size());
+//                Philosoph toStop = runningPhilosophers.get(index);
+//                toStop.stop();
 //
 //
-//
+//                System.out.println("פילוסוף מספר " + toStop.getPhilosophNumber() + " נעצר");
+//                System.out.println("מזלג מספר " + toStop.getForkRight().getNumber() + " נעצר");
+//            }
+//            repaint();
+//        });
+
+
+
+        this.addActionListener(e -> {
+            List<Philosoph> runningPhilosophers = new ArrayList<>();
+
+            for (int i = 0; i < this.philosophs.size(); i++) {
+                Philosoph p = philosophs.get(i);
+                if (p.isRunning()) {
+                    runningPhilosophers.add(p);
+                }
+            }
+
+            if (!runningPhilosophers.isEmpty()) {
+                int index = new Random().nextInt(runningPhilosophers.size());
+                Philosoph toStop = runningPhilosophers.get(index);
+                toStop.stop();
+
+
+                System.out.println("פילוסוף מספר " + toStop.getPhilosophNumber() + " נעצר");
+                System.out.println("מזלג מספר " + toStop.getForkRight().getNumber() + " נעצר");
+            }
+            repaint();
+        });
     }
 
-
 }
+
+
 

@@ -41,7 +41,7 @@ public class Table extends JPanel {
             int forkX = (int) (centerX + forkRadius * Math.cos(forkAngle)) - forkWidth / 2;
             int forkY = (int) (centerY + forkRadius * Math.sin(forkAngle)) - forkHeight / 2;
 
-            Fork f = new Fork(i, forkX, forkY);
+            Fork f = new Fork(i, forkX, forkY,this);
             forks.add(f);
             this.add(f);
         }
