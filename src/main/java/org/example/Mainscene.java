@@ -18,6 +18,9 @@ public class Mainscene extends JPanel {
 
         Table table = new Table();
         this.add(table);
+        RemoveOne removeOne = new RemoveOne(table );
+        this.add(removeOne);
+
 
     }
 }

@@ -17,6 +17,7 @@ public class Philosoph extends JPanel {
     private int state;
     private final Fork forkRight;
     private Fork forkLeft;
+    private boolean running = true; //שייך לעצירת הפילוסוף
 
     private Image philosophWait;
     private Image philosophEat;
@@ -56,6 +57,18 @@ public class Philosoph extends JPanel {
         }
 
         g.drawImage(current, 0, 20, getWidth(), 100, this);
+    }
+
+    public void stop() {
+        this.running = false;
+        setVisible(false);
+        this.table.remove(this);
+        forkRight.stop();
+
+    }
+
+    boolean isRunning() {
+        return running;
     }
 
     private void createStatePanel() {
@@ -160,54 +173,60 @@ public class Philosoph extends JPanel {
             }
         }).start();
     }
-    public Fork getForkRight(){
-        return forkRight ;
+
+    public Fork getForkRight() {
+        return forkRight;
     }
-    public Fork getForkLeft(){
-        return forkLeft ;
+
+    public Fork getForkLeft() {
+        return forkLeft;
     }
+
     public void cheakLogic() {
         new Thread(() -> {
             try {
                 Random rand = new Random();
-                while (true) {
+                while (running) {
                     setState(THINKING);
-                    Thread.sleep(rand.nextInt(5000));
+                    Thread.sleep(rand.nextInt(10));
 
                     boolean ate = false;
                     while (!ate) {
-                            if (!forkLeft.isAvailable()) {
-                                setState(WAIT_FOR_LEFT);
-                                Thread.sleep(100);
-                                continue;
+                        if (!forkLeft.isAvailable()) {
+                            setState(WAIT_FOR_LEFT);
+                            Thread.sleep(10);
+                            continue;
 
-                            }
-                            forkLeft.setLeftForkNextPhilosoph(this);
-                            forkLeft.setUnavailable();
-                            Thread.sleep(rand.nextInt(100));
-
-
-                                if (!forkRight.isAvailable()) {
-                                    setState(WAIT_FOR_RIGHT);
-                                    forkLeft.setAvailable();
-                                    Thread.sleep(1000);
-                                    continue;
-                                }
-                                setState(EAT);
-                                forkRight.setRhightForkNextPhilosoph(this);
-                                forkRight.setUnavailable();
+                        }
+                        forkLeft.setLeftForkNextPhilosoph(this);
+                        forkLeft.setUnavailable();
+                        Thread.sleep(rand.nextInt(10));
 
 
-                                eatCount++;
-                                Thread.sleep(rand.nextInt(1000));
+                        if (!forkRight.isAvailable()) {
+                            setState(WAIT_FOR_RIGHT);
+                            forkLeft.setAvailable();
+                            Thread.sleep(10);
+                            continue;
+                        }
+                        setState(EAT);
+                        forkRight.setRhightForkNextPhilosoph(this);
+                        forkRight.setUnavailable();
 
-                                // שחרור
-                                forkLeft.setAvailable();
-                                forkLeft.setForkToNormal();
-                                forkRight.setAvailable();
-                                forkRight.setForkToNormal();
 
-                                ate = true;
+                        eatCount++;
+                        System.out.println(this.philosophNumber+"philo");
+                        System.out.println(this.forkRight.getNumber()+"right");
+                        System.out.println(this.forkLeft.getNumber()+"left");
+                        Thread.sleep(rand.nextInt(5000));
+
+                        // שחרור
+                        forkLeft.setAvailable();
+                        forkLeft.setForkToNormal();
+                        forkRight.setAvailable();
+                        forkRight.setForkToNormal();
+
+                        ate = true;
 
 
                     }
@@ -217,6 +236,7 @@ public class Philosoph extends JPanel {
             }
         }).start();
     }
+
 
 }
 

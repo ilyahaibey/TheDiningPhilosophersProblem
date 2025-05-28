@@ -69,7 +69,6 @@ public class RemoveOne extends JButton {
 //        });
 
 
-
         this.addActionListener(e -> {
             List<Philosoph> runningPhilosophers = new ArrayList<>();
 
@@ -83,17 +82,32 @@ public class RemoveOne extends JButton {
             if (!runningPhilosophers.isEmpty()) {
                 int index = new Random().nextInt(runningPhilosophers.size());
                 Philosoph toStop = runningPhilosophers.get(index);
+                philosophs.remove(toStop);
                 toStop.stop();
-
 
                 System.out.println("פילוסוף מספר " + toStop.getPhilosophNumber() + " נעצר");
                 System.out.println("מזלג מספר " + toStop.getForkRight().getNumber() + " נעצר");
             }
+
             repaint();
         });
     }
 
+    public void relinkForks() {
+        int n = philosophs.size();
+
+        for (int i = 0; i < n; i++) {
+            Philosoph p = philosophs.get(i);
+
+            Fork left = forks.get(i % forks.size());
+            Fork right = forks.get((i + 1) % forks.size());
+
+
+        }
+    }
 }
+
+
 
 
 

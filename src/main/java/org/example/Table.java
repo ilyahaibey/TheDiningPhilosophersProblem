@@ -50,7 +50,7 @@ public class Table extends JPanel {
         for (int i = 0; i < numberOfPhilosophers; i++) {
             double angle = Math.toRadians(i * angleStep - 90);
             int philX = (int) (centerX + radius * Math.cos(angle)) - philosopherSize / 2;
-            int philY = (int) (centerY + radius * Math.sin(angle)) - philosopherSize / 2;
+            int philY = (int) (centerY + radius * Math.sin(angle)) - philosopherSize / 2+20;
 
             int leftIndex = (i + numberOfPhilosophers - 1) % numberOfPhilosophers;
             int rightIndex = i;
@@ -62,12 +62,6 @@ public class Table extends JPanel {
             philosophs.add(p);
             this.add(p);
         }
-        //remove(forks.get(0));
-        //philosophs.get(5).getForkLeft().getNumber();
-        //philosophs.get(5).getForkRight().getNumber();
-       // System.out.println(philosophs.get(0).getForkLeft().getNumber());
-        //System.out.println(philosophs.get(0).getForkRight().getNumber());
-
 
     }
 
