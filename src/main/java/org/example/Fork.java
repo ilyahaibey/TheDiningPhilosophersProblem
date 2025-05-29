@@ -54,7 +54,7 @@ public class Fork extends JPanel {
     }
     public void setLeftForkNextPhilosoph(Philosoph philosoph){
 
-         int philosophX = philosoph.getX();
+        int philosophX = philosoph.getX();
         int philosophY = philosoph.getY()+30;
         setBounds(philosophX , philosophY , getWidth() ,getHeight());
         repaint();
@@ -73,13 +73,12 @@ public class Fork extends JPanel {
         repaint();
     }
     public int getNumber(){
-       return this.number;
+        return this.number;
     }
 
     public void stop(){
         this.available = false ;
         setVisible(false);
-        table.remove(this);
 
     }
     public void setNumber(int newIndex){

@@ -9,22 +9,26 @@ public class Philosoph extends JPanel {
     public static final int THINKING = 2;
     public static final int WAIT_FOR_RIGHT = 3;
     public static final int WAIT_FOR_LEFT = 4;
+    private static final int HUNGER_THRESHOLD = 10;
 
     private JPanel statePanel;
     private int eatCount = 0;
 
     private int philosophNumber;
     private int state;
-    private final Fork forkRight;
+    private Fork forkRight;
     private Fork forkLeft;
-    private boolean running = true; //שייך לעצירת הפילוסוף
+    private volatile boolean running = true;
+
+    private int hungerCount = 0;
+    private Thread workerThread;
 
     private Image philosophWait;
     private Image philosophEat;
     private Table table;
 
-
-    public Philosoph(Fork left, Fork right, int philosophNumber, int x, int y, int width, int height, Table table) {
+    public Philosoph(Fork left, Fork right, int philosophNumber,
+                     int x, int y, int width, int height, Table table) {
         this.table = table;
         this.forkRight = right;
         this.forkLeft = left;
@@ -36,35 +40,56 @@ public class Philosoph extends JPanel {
 
         setLayout(null);
         setFocusable(true);
-        setBounds(x, y-20, width, height+40 );
+        setBounds(x, y - 20, width, height + 40);
         setOpaque(false);
         createStatePanel();
-        //startLogic();
-        cheakLogic();
 
-        //System.out.println(String.valueOf(this.philosophNumber)+String.valueOf(this.forkLeft.getNumber())+String.valueOf(this.forkRight.getNumber()));
+        // start logic thread and keep reference
+        workerThread = new Thread(this::runLogic, "Philosoph-" + philosophNumber);
+        workerThread.start();
+
+        System.out.println("THIS PHILO " + this.philosophNumber +
+                " right " + this.forkRight.getNumber() +
+                " left " + this.forkLeft.getNumber());
     }
 
     @Override
     protected void paintComponent(Graphics g) {
-        super.paintComponent(g); // רקע
-
-        Image current;
-        if (state == EAT) {
-            current = philosophEat;
-        } else {
-            current = philosophWait;
-        }
-
+        super.paintComponent(g);
+        Image current = (state == EAT) ? philosophEat : philosophWait;
         g.drawImage(current, 0, 20, getWidth(), 100, this);
     }
 
     public void stop() {
-        this.running = false;
-        setVisible(false);
-        this.table.remove(this);
-        forkRight.stop();
+        // signal thread to stop
+        running = false;
+        if (workerThread != null) {
+            workerThread.interrupt();
 
+            try {
+                workerThread.join();
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+        }
+
+        // UI removal on EDT
+        SwingUtilities.invokeLater(() -> {
+            setVisible(false);
+            table.remove(this);
+            table.revalidate();
+            table.repaint();
+        });
+
+        // Remove right fork after thread stopped
+        Fork forkToRemove = this.forkRight;
+        forkToRemove.stop();
+        SwingUtilities.invokeLater(() -> {
+            table.remove(forkToRemove);
+            table.getForks().remove(forkToRemove);
+            table.revalidate();
+            table.repaint();
+        });
     }
 
     boolean isRunning() {
@@ -78,100 +103,66 @@ public class Philosoph extends JPanel {
                 super.paintComponent(g);
                 g.setColor(Color.BLACK);
                 g.setFont(new Font("Arial", Font.PLAIN, 12));
-                String status = "";
+                String status;
                 switch (state) {
-                    case EAT:
-                        status = "eating";
-                        break;
-                    case THINKING:
-                        status = "thinking";
-                        break;
-                    case WAIT_FOR_LEFT:
-                        status = "waiting left";
-                        break;
-                    case WAIT_FOR_RIGHT:
-                        status = "waiting right";
-                        break;
-                    default:
-                        status = "";
+                    case EAT: status = "eating"; break;
+                    case THINKING: status = "thinking"; break;
+                    case WAIT_FOR_LEFT: status = "waiting left"; break;
+                    case WAIT_FOR_RIGHT: status = "waiting right"; break;
+                    default: status = "";
                 }
-
                 g.drawString(status, 5, 11);
                 g.drawString("Ate " + eatCount + " times", 0, 22);
             }
         };
-
         statePanel.setBounds(0, 0, 120, 40);
         statePanel.setOpaque(false);
-        this.add(statePanel);
-        getBounds();
+        add(statePanel);
     }
 
-    public void setState(int newState) {
-        this.state = newState;
-        repaint();
-        statePanel.repaint();
-    }
+    private void runLogic() {
+        Random rand = new Random();
+        try {
+            while (running) {
+                updateState(THINKING);
+                Thread.sleep(rand.nextInt(10));
 
-    public int getState() {
-        return state;
-    }
+                boolean ate = false;
+                while (!ate && running) {
+                    if (table.requestToEat(this)) {
+                        updateState(EAT);
+                        eatCount++;
+                        hungerCount = 0;
+                        Thread.sleep(rand.nextInt(10));
 
-    public int getPhilosophNumber() {
-        return philosophNumber;
-    }
-
-    public void startLogic() {
-        new Thread(() -> {
-            try {
-                Random rand = new Random();
-                while (true) {
-                    setState(THINKING);
-                    Thread.sleep(rand.nextInt(100));
-
-                    boolean ate = false;
-                    while (!ate) {
+                        // release forks
                         synchronized (forkLeft) {
-                            if (!forkLeft.isAvailable()) {
-                                setState(WAIT_FOR_LEFT);
-                                Thread.sleep(100);
-                                continue;
-                            }
-                            forkLeft.setLeftForkNextPhilosoph(this);
-                            forkLeft.setUnavailable();
-                            Thread.sleep(rand.nextInt(1000));
-
-
-                            synchronized (forkRight) {
-                                if (!forkRight.isAvailable()) {
-                                    setState(WAIT_FOR_RIGHT);
-                                    forkLeft.setAvailable();
-                                    Thread.sleep(100);
-                                    continue;
-                                }
-                                setState(EAT);
-                                forkRight.setRhightForkNextPhilosoph(this);
-                                forkRight.setUnavailable();
-
-
-                                eatCount++;
-                                Thread.sleep(rand.nextInt(100));
-
-                                // שחרור
-                                forkLeft.setAvailable();
-                                forkLeft.setForkToNormal();
-                                forkRight.setAvailable();
-                                forkRight.setForkToNormal();
-
-                                ate = true;
-                            }
+                            forkLeft.setAvailable();
+                            forkLeft.setForkToNormal();
                         }
+                        synchronized (forkRight) {
+                            forkRight.setAvailable();
+                            forkRight.setForkToNormal();
+                        }
+                        ate = true;
+                    } else {
+                        hungerCount++;
+                        updateState(THINKING);
+                        Thread.sleep(10);
                     }
                 }
-            } catch (Exception e) {
-                e.printStackTrace();
             }
-        }).start();
+        } catch (InterruptedException e) {
+            // Thread interrupted: exit gracefully
+        }
+    }
+
+    public void updateState(int newState) {
+        this.state = newState;
+        SwingUtilities.invokeLater(() -> {
+            repaint();
+            statePanel.repaint();
+        });
     }
 
     public Fork getForkRight() {
@@ -182,64 +173,23 @@ public class Philosoph extends JPanel {
         return forkLeft;
     }
 
-    public void cheakLogic() {
-        new Thread(() -> {
-            try {
-                Random rand = new Random();
-                while (running) {
-                    setState(THINKING);
-                    Thread.sleep(rand.nextInt(10));
-
-                    boolean ate = false;
-                    while (!ate) {
-                        if (!forkLeft.isAvailable()) {
-                            setState(WAIT_FOR_LEFT);
-                            Thread.sleep(10);
-                            continue;
-
-                        }
-                        forkLeft.setLeftForkNextPhilosoph(this);
-                        forkLeft.setUnavailable();
-                        Thread.sleep(rand.nextInt(10));
-
-
-                        if (!forkRight.isAvailable()) {
-                            setState(WAIT_FOR_RIGHT);
-                            forkLeft.setAvailable();
-                            Thread.sleep(10);
-                            continue;
-                        }
-                        setState(EAT);
-                        forkRight.setRhightForkNextPhilosoph(this);
-                        forkRight.setUnavailable();
-
-
-                        eatCount++;
-                        System.out.println(this.philosophNumber+"philo");
-                        System.out.println(this.forkRight.getNumber()+"right");
-                        System.out.println(this.forkLeft.getNumber()+"left");
-                        Thread.sleep(rand.nextInt(5000));
-
-                        // שחרור
-                        forkLeft.setAvailable();
-                        forkLeft.setForkToNormal();
-                        forkRight.setAvailable();
-                        forkRight.setForkToNormal();
-
-                        ate = true;
-
-
-                    }
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }).start();
+    public int getPhilosophNumber() {
+        return philosophNumber;
     }
 
+    public void setForks(Fork left, Fork right) {
+        this.forkLeft = left;
+        this.forkRight = right;
+    }
+
+    public void setPhilosophNumber(int number) {
+        this.philosophNumber = number;
+    }
+    public Thread getWorkerThread(){
+        return this.workerThread;
+    }
+    public int getState(){
+        return this.state;
+    }
 
 }
-
-
-
-

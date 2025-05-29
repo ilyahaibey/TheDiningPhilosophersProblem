@@ -2,7 +2,6 @@ package org.example;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -13,101 +12,87 @@ public class RemoveOne extends JButton {
     public static final int WIDTH = 100;
     public static final int HEIGHT = 100;
 
-    private int x;
-    private int y;
-    private int width;
-    private int height;
-    private JPanel perent;
-    private Table table;
-    private List<Fork> forks;
-    private List<Philosoph> philosophs;
-
+    private final Table table;
+    private final List<Fork> forks;
+    private final List<Philosoph> philosophs;
 
     public RemoveOne(Table table) {
         this.table = table;
         this.forks = table.getForks();
         this.philosophs = table.getPhilosophs();
 
-        this.x = X;
-        this.y = Y;
-        this.width = WIDTH;
-        this.height = HEIGHT;
         setBackground(Color.cyan);
         setLayout(null);
         setBounds(X, Y, WIDTH, HEIGHT);
-        this.setText("remove");
+        setText("remove");
+        setContentAreaFilled(true);
+        setBorderPainted(true);
+        setFocusPainted(true);
+        setVisible(true);
+
+        addActionListener(e -> removeRandomPhilosoph());
+    }
+
+    private void removeRandomPhilosoph() {
+        List<Philosoph> running = new ArrayList<>();
+        for (Philosoph p : philosophs) {
+            if (p.isRunning()) running.add(p);
+        }
+        if (running.isEmpty()) return;
+
+        // בחר פילוסוף אקראי והפסק את הריצה שלו
+        Philosoph toRemove = running.get(new Random().nextInt(running.size()));
+        toRemove.stop();
+
+        // בצע את ההסרות והעדכונים על ה־EDT כדי למנוע בעיות בסינכרון עם Swing
+        SwingUtilities.invokeLater(() -> {
+            // הסר את הפילוסוף
+            table.remove(toRemove);
+            philosophs.remove(toRemove);
+
+            // הסר את המזלג הימני שלו
+            Fork forkToRemove = toRemove.getForkRight();
+            forkToRemove.stop();
+            table.remove(forkToRemove);
+            forks.remove(forkToRemove);
+
+            // עדכן קישורים ומספרים
+            relinkForksAfterRemoval();
 
 
-        this.setContentAreaFilled(true);
-        this.setBorderPainted(true);
-        this.setFocusPainted(true);
-        this.setVisible(true);
-        //removeButton.addActionListener(onStartClicked);
-        //removeButton.add(this);
-
-//
-//        this.addActionListener(e -> {
-//            List<Philosoph> runningPhilosophers = new ArrayList<>();
-//
-//            for (int i = 0; i < this.philosophs.size(); i++) {
-//                Philosoph p = philosophs.get(i);
-//                if (p.isRunning()) {
-//                    runningPhilosophers.add(p);
-//                }
-//            }
-//
-//            if (!runningPhilosophers.isEmpty()) {
-//                int index = new Random().nextInt(runningPhilosophers.size());
-//                Philosoph toStop = runningPhilosophers.get(index);
-//                toStop.stop();
-//
-//
-//                System.out.println("פילוסוף מספר " + toStop.getPhilosophNumber() + " נעצר");
-//                System.out.println("מזלג מספר " + toStop.getForkRight().getNumber() + " נעצר");
-//            }
-//            repaint();
-//        });
+            // רענון ה־UI
+            table.revalidate();
+            table.repaint();
 
 
-        this.addActionListener(e -> {
-            List<Philosoph> runningPhilosophers = new ArrayList<>();
-
-            for (int i = 0; i < this.philosophs.size(); i++) {
-                Philosoph p = philosophs.get(i);
-                if (p.isRunning()) {
-                    runningPhilosophers.add(p);
-                }
+            System.out.println("Removed philosopher #" + toRemove.getPhilosophNumber());
+            for (int i = 0 ; i <philosophs.size() ; i ++) {
+                philosophs.get(i).revalidate();
+                System.out.println(philosophs.get(i).getWorkerThread().isAlive());
+                System.out.println(philosophs.get(i).getState());
+                philosophs.get(i).updateState(1);
+                System.out.println("THIS PHILO " + philosophs.get(i).getPhilosophNumber() +
+                        " right " + philosophs.get(i).getForkRight().getNumber() +
+                        " left " + philosophs.get(i).getForkLeft().getNumber());
             }
 
-            if (!runningPhilosophers.isEmpty()) {
-                int index = new Random().nextInt(runningPhilosophers.size());
-                Philosoph toStop = runningPhilosophers.get(index);
-                philosophs.remove(toStop);
-                toStop.stop();
-
-                System.out.println("פילוסוף מספר " + toStop.getPhilosophNumber() + " נעצר");
-                System.out.println("מזלג מספר " + toStop.getForkRight().getNumber() + " נעצר");
-            }
-
-            repaint();
         });
     }
 
-    public void relinkForks() {
+    public void relinkForksAfterRemoval() {
+        // עדכון מספר מזלגות
+        for (int i = 0; i < forks.size(); i++) {
+            forks.get(i).setNumber(i);
+        }
+        // קישור מזלגות ופילוסופים
         int n = philosophs.size();
-
         for (int i = 0; i < n; i++) {
-            Philosoph p = philosophs.get(i);
-
-            Fork left = forks.get(i % forks.size());
-            Fork right = forks.get((i + 1) % forks.size());
-
-
+            Philosoph current = philosophs.get(i);
+            Fork left = forks.get((i + forks.size() - 1) % forks.size());
+            Fork right = forks.get(i);
+            current.setForks(left, right);
+            current.setPhilosophNumber(i);
         }
     }
 }
-
-
-
-
 

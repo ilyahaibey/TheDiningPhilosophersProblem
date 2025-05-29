@@ -7,22 +7,7 @@ import javax.swing.*;
 public class Main {
     public static void main(String[] args) {
 
-        JFrame window = new JFrame("start screen");
-        window.setSize(1200,800);
-        window.setLocationRelativeTo(null);
-        window.setLayout(null);
-        window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-
-        window.setResizable(false);
-
         Mainscene mainscene = new Mainscene();
-
-        window.add(mainscene);
-
-
-
-        window.setVisible(true);
-
 
 
     }

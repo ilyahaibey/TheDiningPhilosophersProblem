@@ -11,6 +11,16 @@ public class Mainscene extends JPanel {
 
 
     public Mainscene() {
+
+        JFrame window = new JFrame("start screen");
+        window.setSize(1200,800);
+        window.setLocationRelativeTo(null);
+        window.setLayout(null);
+        window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        window.setResizable(false);
+
+
+
         setLayout(null);
         setBounds(0, 0, WIGHT, HIGHT);
         setBackground(Color.black);
@@ -20,6 +30,9 @@ public class Mainscene extends JPanel {
         this.add(table);
         RemoveOne removeOne = new RemoveOne(table );
         this.add(removeOne);
+
+        window.add(this);
+        window.setVisible(true);
 
 
     }

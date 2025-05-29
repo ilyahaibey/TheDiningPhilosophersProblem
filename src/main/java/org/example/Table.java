@@ -17,6 +17,7 @@ public class Table extends JPanel {
     private List<Philosoph> philosophs;
     private List<Fork> forks;
 
+
     public Table() {
         philosophs = new ArrayList<>();
         forks = new ArrayList<>();
@@ -41,7 +42,7 @@ public class Table extends JPanel {
             int forkX = (int) (centerX + forkRadius * Math.cos(forkAngle)) - forkWidth / 2;
             int forkY = (int) (centerY + forkRadius * Math.sin(forkAngle)) - forkHeight / 2;
 
-            Fork f = new Fork(i, forkX, forkY,this);
+            Fork f = new Fork(i, forkX, forkY, this);
             forks.add(f);
             this.add(f);
         }
@@ -50,7 +51,7 @@ public class Table extends JPanel {
         for (int i = 0; i < numberOfPhilosophers; i++) {
             double angle = Math.toRadians(i * angleStep - 90);
             int philX = (int) (centerX + radius * Math.cos(angle)) - philosopherSize / 2;
-            int philY = (int) (centerY + radius * Math.sin(angle)) - philosopherSize / 2+20;
+            int philY = (int) (centerY + radius * Math.sin(angle)) - philosopherSize / 2 + 20;
 
             int leftIndex = (i + numberOfPhilosophers - 1) % numberOfPhilosophers;
             int rightIndex = i;
@@ -58,9 +59,13 @@ public class Table extends JPanel {
             Fork leftFork = forks.get(leftIndex);
             Fork rightFork = forks.get(rightIndex);
 
-            Philosoph p = new Philosoph(leftFork, rightFork, i, philX, philY, philosopherSize, philosopherSize , this);
+            Philosoph p = new Philosoph(rightFork, leftFork, i, philX, philY, philosopherSize, philosopherSize, this);
             philosophs.add(p);
             this.add(p);
+
+        }
+        for (int i = 0; i < philosophs.size(); i++) {
+            System.out.println("P - " + philosophs.get(i).getPhilosophNumber() + " R-" + philosophs.get(i).getForkRight().getNumber() + " L-" + philosophs.get(i).getForkLeft().getNumber());
         }
 
     }
@@ -72,5 +77,23 @@ public class Table extends JPanel {
     public List<Fork> getForks() {
         return this.forks;
     }
+    public synchronized boolean requestToEat(Philosoph p) {
+        Fork left = p.getForkLeft();
+        Fork right = p.getForkRight();
+
+        if (left.isAvailable() && right.isAvailable()) {
+            left.setUnavailable();
+            right.setUnavailable();
+
+            left.setLeftForkNextPhilosoph(p);
+            right.setRhightForkNextPhilosoph(p);
+
+            return true;
+        }
+
+        return false;
+    }
 
 }
+
+
