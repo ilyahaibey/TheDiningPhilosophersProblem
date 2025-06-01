@@ -48,9 +48,7 @@ public class Philosoph extends JPanel {
         workerThread = new Thread(this::runLogic, "Philosoph-" + philosophNumber);
         workerThread.start();
 
-        System.out.println("THIS PHILO " + this.philosophNumber +
-                " right " + this.forkRight.getNumber() +
-                " left " + this.forkLeft.getNumber());
+
     }
 
     @Override
@@ -104,13 +102,19 @@ public class Philosoph extends JPanel {
                 g.setColor(Color.BLACK);
                 g.setFont(new Font("Arial", Font.PLAIN, 12));
                 String status;
-                switch (state) {
-                    case EAT: status = "eating"; break;
-                    case THINKING: status = "thinking"; break;
-                    case WAIT_FOR_LEFT: status = "waiting left"; break;
-                    case WAIT_FOR_RIGHT: status = "waiting right"; break;
-                    default: status = "";
+
+                if (state == EAT) {
+                    status = "eating";
+                } else if (state == THINKING) {
+                    status = "thinking";
+                } else if (state == WAIT_FOR_LEFT) {
+                    status = "waiting left";
+                } else if (state == WAIT_FOR_RIGHT) {
+                    status = "waiting right";
+                } else {
+                    status = "";
                 }
+
                 g.drawString(status, 5, 11);
                 g.drawString("Ate " + eatCount + " times", 0, 22);
             }
@@ -135,7 +139,6 @@ public class Philosoph extends JPanel {
                         hungerCount = 0;
                         Thread.sleep(rand.nextInt(10));
 
-                        // release forks
                         synchronized (forkLeft) {
                             forkLeft.setAvailable();
                             forkLeft.setForkToNormal();
@@ -153,7 +156,7 @@ public class Philosoph extends JPanel {
                 }
             }
         } catch (InterruptedException e) {
-            // Thread interrupted: exit gracefully
+
         }
     }
 

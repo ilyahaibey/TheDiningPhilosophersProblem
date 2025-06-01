@@ -36,7 +36,6 @@ public class Table extends JPanel {
         int forkHeight = 30;
         int forkRadius = radius - 40;
 
-        // יצירת המזלגות
         for (int i = 0; i < numberOfPhilosophers; i++) {
             double forkAngle = Math.toRadians((i * angleStep + angleStep / 2.0) - 90);
             int forkX = (int) (centerX + forkRadius * Math.cos(forkAngle)) - forkWidth / 2;
@@ -47,7 +46,6 @@ public class Table extends JPanel {
             this.add(f);
         }
 
-        // יצירת הפילוסופים
         for (int i = 0; i < numberOfPhilosophers; i++) {
             double angle = Math.toRadians(i * angleStep - 90);
             int philX = (int) (centerX + radius * Math.cos(angle)) - philosopherSize / 2;
@@ -62,12 +60,7 @@ public class Table extends JPanel {
             Philosoph p = new Philosoph(rightFork, leftFork, i, philX, philY, philosopherSize, philosopherSize, this);
             philosophs.add(p);
             this.add(p);
-
         }
-        for (int i = 0; i < philosophs.size(); i++) {
-            System.out.println("P - " + philosophs.get(i).getPhilosophNumber() + " R-" + philosophs.get(i).getForkRight().getNumber() + " L-" + philosophs.get(i).getForkLeft().getNumber());
-        }
-
     }
 
     public List<Philosoph> getPhilosophs() {
@@ -90,10 +83,8 @@ public class Table extends JPanel {
 
             return true;
         }
-
         return false;
     }
-
 }
 
 

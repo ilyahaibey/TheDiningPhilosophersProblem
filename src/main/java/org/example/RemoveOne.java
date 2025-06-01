@@ -40,27 +40,23 @@ public class RemoveOne extends JButton {
         }
         if (running.isEmpty()) return;
 
-        // בחר פילוסוף אקראי והפסק את הריצה שלו
+        
         Philosoph toRemove = running.get(new Random().nextInt(running.size()));
         toRemove.stop();
 
-        // בצע את ההסרות והעדכונים על ה־EDT כדי למנוע בעיות בסינכרון עם Swing
+
         SwingUtilities.invokeLater(() -> {
-            // הסר את הפילוסוף
             table.remove(toRemove);
             philosophs.remove(toRemove);
 
-            // הסר את המזלג הימני שלו
+
             Fork forkToRemove = toRemove.getForkRight();
             forkToRemove.stop();
             table.remove(forkToRemove);
             forks.remove(forkToRemove);
 
-            // עדכן קישורים ומספרים
             relinkForksAfterRemoval();
 
-
-            // רענון ה־UI
             table.revalidate();
             table.repaint();
 
@@ -80,11 +76,11 @@ public class RemoveOne extends JButton {
     }
 
     public void relinkForksAfterRemoval() {
-        // עדכון מספר מזלגות
+
         for (int i = 0; i < forks.size(); i++) {
             forks.get(i).setNumber(i);
         }
-        // קישור מזלגות ופילוסופים
+
         int n = philosophs.size();
         for (int i = 0; i < n; i++) {
             Philosoph current = philosophs.get(i);
