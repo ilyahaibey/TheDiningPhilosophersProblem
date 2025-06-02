@@ -133,7 +133,7 @@ public class Philosoph extends JPanel {
                         updateState(EAT);
                         eatCount++;
                         hungerCount = 0;
-                        Thread.sleep(rand.nextInt(10));
+                        Thread.sleep(rand.nextInt(1000));
 
                         synchronized (forkLeft) {
                             forkLeft.setAvailable();
@@ -148,7 +148,7 @@ public class Philosoph extends JPanel {
                     } else {
                         hungerCount++;
                         updateState(THINKING);
-                        Thread.sleep(rand.nextInt(1));
+                        Thread.sleep(rand.nextInt(100));
                     }
                 }
             }
