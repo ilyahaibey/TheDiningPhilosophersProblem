@@ -20,7 +20,7 @@ public class Philosoph extends JPanel {
     private Fork forkLeft;
     private volatile boolean running = true;
 
-    private int hungerCount = 0;
+    private int hungerCount = 10;
     private Thread workerThread;
 
     private Image philosophWait;
@@ -44,7 +44,6 @@ public class Philosoph extends JPanel {
         setOpaque(false);
         createStatePanel();
 
-        // start logic thread and keep reference
         workerThread = new Thread(this::runLogic, "Philosoph-" + philosophNumber);
         workerThread.start();
 
@@ -59,7 +58,6 @@ public class Philosoph extends JPanel {
     }
 
     public void stop() {
-        // signal thread to stop
         running = false;
         if (workerThread != null) {
             workerThread.interrupt();
@@ -71,7 +69,6 @@ public class Philosoph extends JPanel {
             }
         }
 
-        // UI removal on EDT
         SwingUtilities.invokeLater(() -> {
             setVisible(false);
             table.remove(this);
@@ -79,7 +76,6 @@ public class Philosoph extends JPanel {
             table.repaint();
         });
 
-        // Remove right fork after thread stopped
         Fork forkToRemove = this.forkRight;
         forkToRemove.stop();
         SwingUtilities.invokeLater(() -> {
@@ -148,10 +144,11 @@ public class Philosoph extends JPanel {
                             forkRight.setForkToNormal();
                         }
                         ate = true;
+
                     } else {
                         hungerCount++;
                         updateState(THINKING);
-                        Thread.sleep(10);
+                        Thread.sleep(rand.nextInt(1));
                     }
                 }
             }
@@ -176,10 +173,6 @@ public class Philosoph extends JPanel {
         return forkLeft;
     }
 
-    public int getPhilosophNumber() {
-        return philosophNumber;
-    }
-
     public void setForks(Fork left, Fork right) {
         this.forkLeft = left;
         this.forkRight = right;
@@ -188,11 +181,9 @@ public class Philosoph extends JPanel {
     public void setPhilosophNumber(int number) {
         this.philosophNumber = number;
     }
-    public Thread getWorkerThread(){
-        return this.workerThread;
-    }
-    public int getState(){
-        return this.state;
-    }
 
+    public int getHungerCount() {
+        return hungerCount;
+    }
 }
+

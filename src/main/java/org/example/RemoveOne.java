@@ -40,15 +40,12 @@ public class RemoveOne extends JButton {
         }
         if (running.isEmpty()) return;
 
-        
         Philosoph toRemove = running.get(new Random().nextInt(running.size()));
         toRemove.stop();
-
 
         SwingUtilities.invokeLater(() -> {
             table.remove(toRemove);
             philosophs.remove(toRemove);
-
 
             Fork forkToRemove = toRemove.getForkRight();
             forkToRemove.stop();
@@ -59,20 +56,11 @@ public class RemoveOne extends JButton {
 
             table.revalidate();
             table.repaint();
-
-
-            System.out.println("Removed philosopher #" + toRemove.getPhilosophNumber());
-            for (int i = 0 ; i <philosophs.size() ; i ++) {
-                philosophs.get(i).revalidate();
-                System.out.println(philosophs.get(i).getWorkerThread().isAlive());
-                System.out.println(philosophs.get(i).getState());
-                philosophs.get(i).updateState(1);
-                System.out.println("THIS PHILO " + philosophs.get(i).getPhilosophNumber() +
-                        " right " + philosophs.get(i).getForkRight().getNumber() +
-                        " left " + philosophs.get(i).getForkLeft().getNumber());
-            }
-
         });
+        for (Fork p : forks){
+            p.setAvailable();
+
+        }
     }
 
     public void relinkForksAfterRemoval() {
@@ -80,7 +68,6 @@ public class RemoveOne extends JButton {
         for (int i = 0; i < forks.size(); i++) {
             forks.get(i).setNumber(i);
         }
-
         int n = philosophs.size();
         for (int i = 0; i < n; i++) {
             Philosoph current = philosophs.get(i);

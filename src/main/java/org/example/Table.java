@@ -4,11 +4,11 @@ import javax.swing.*;
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
-
-import static java.lang.Thread.sleep;
+import java.util.Collections;
+import java.util.Comparator;
 
 public class Table extends JPanel {
+
     public static final int X = 250;
     public static final int Y = 150;
     public static final int WIDTH = 700;
@@ -16,7 +16,7 @@ public class Table extends JPanel {
 
     private List<Philosoph> philosophs;
     private List<Fork> forks;
-
+    private final List<Philosoph> waitingList = new ArrayList<>();
 
     public Table() {
         philosophs = new ArrayList<>();
@@ -70,21 +70,45 @@ public class Table extends JPanel {
     public List<Fork> getForks() {
         return this.forks;
     }
+
+    private synchronized Philosoph getMostHungry() {
+        if (waitingList.isEmpty()) {
+            return null;
+        }
+        return Collections.max(
+                waitingList,
+                Comparator.comparingInt(Philosoph::getHungerCount)
+        );
+    }
+
     public synchronized boolean requestToEat(Philosoph p) {
         Fork left = p.getForkLeft();
         Fork right = p.getForkRight();
 
+        if (!waitingList.contains(p)) {
+            waitingList.add(p);
+        }
+
+        Philosoph mostHungry = getMostHungry();
+        if (mostHungry != null && mostHungry != p) {
+            return false;
+        }
+
         if (left.isAvailable() && right.isAvailable()) {
+            waitingList.remove(p);
+
             left.setUnavailable();
             right.setUnavailable();
-
             left.setLeftForkNextPhilosoph(p);
             right.setRhightForkNextPhilosoph(p);
-
             return true;
         }
+
         return false;
     }
+
 }
+
+
 
 

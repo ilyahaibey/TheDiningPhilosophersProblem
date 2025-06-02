@@ -20,7 +20,6 @@ public class Mainscene extends JPanel {
         window.setResizable(false);
 
 
-
         setLayout(null);
         setBounds(0, 0, WIGHT, HIGHT);
         setBackground(Color.black);

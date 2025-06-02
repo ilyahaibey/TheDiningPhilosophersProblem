@@ -23,7 +23,7 @@ public class Fork extends JPanel {
         fork1 = new ImageIcon(getClass().getResource("/grey.png")).getImage();
         setLayout(null);
         setFocusable(true);
-        setBounds(x, y, 50, 50); // שימוש בפרמטרים שהועברו
+        setBounds(x, y, 50, 50);
         setOpaque(false);
     }
 
@@ -70,9 +70,6 @@ public class Fork extends JPanel {
     public void setForkToNormal(){
         setBounds(x ,y ,getWidth() , getHeight());
         repaint();
-    }
-    public int getNumber(){
-        return this.number;
     }
 
     public void stop(){
